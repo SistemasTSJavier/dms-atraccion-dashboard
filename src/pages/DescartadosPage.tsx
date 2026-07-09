@@ -9,13 +9,14 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { CategoryColorLegend, ChartTooltipContent } from '../components/ChartLegend'
 import { DateFilter } from '../components/DateFilter'
 import { ChartCard, PageHeader } from '../components/ui'
 import { useData } from '../context/DataContext'
 import { useChartHeight } from '../hooks/useChartHeight'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
-import { BAR_LABEL_RIGHT, CATEGORY_COLORS, CHART_MARGIN_VERTICAL } from '../lib/chartConfig'
+import { BAR_LABEL_RIGHT, CHART_MARGIN_VERTICAL } from '../lib/chartConfig'
+
+const BAR_COLORS = ['#09124f', '#1a2d7a', '#2d4a9e', '#3b5bdb', '#5c7cfa', '#748ffc']
 
 export function DescartadosPage() {
   const { data } = useData()
@@ -37,14 +38,6 @@ export function DescartadosPage() {
     return [...grouped.entries()].map(([tipo, candidatos]) => ({ tipo, candidatos }))
   }, [filtered])
 
-  const legendItems = useMemo(
-    () => chartData.map((d, i) => ({
-      label: d.tipo,
-      color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
-    })),
-    [chartData],
-  )
-
   if (!data) return null
 
   return (
@@ -63,15 +56,16 @@ export function DescartadosPage() {
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
               <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
               <YAxis dataKey="tipo" type="category" width={130} tick={{ fill: '#09124f', fontSize: 10, fontWeight: 600 }} />
-              <Tooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="candidatos" name="Candidatos" radius={[0, 8, 8, 0]} label={BAR_LABEL_RIGHT}>
+              <Tooltip
+                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+              />
+              <Bar dataKey="candidatos" radius={[0, 8, 8, 0]} label={BAR_LABEL_RIGHT}>
                 {chartData.map((_, i) => (
-                  <Cell key={i} fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]} />
+                  <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <CategoryColorLegend items={legendItems} />
         </ChartCard>
       )}
     </div>

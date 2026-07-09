@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Clock, UserCircle } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { DateFilter } from '../components/DateFilter'
-import { OptimizedImage } from '../components/OptimizedImage'
+import { RecruiterPhoto } from '../components/RecruiterPhoto'
 import { PageHeader, StatCard } from '../components/ui'
 import { useData } from '../context/DataContext'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
-import { cn, getPhotoUrl } from '../lib/utils'
+import { cn } from '../lib/utils'
 
 export function ProductividadPage() {
   const { data } = useData()
@@ -30,7 +30,7 @@ export function ProductividadPage() {
   const records = filtered.filter((r) => r.reclutador === activeName)
   const current = records[0]
   const perfil = data.perfiles.find((p) => p.nombre === activeName)
-  const photoUrl = getPhotoUrl(activeName)
+  const fotoExcel = data.fotos.find((f) => f.nombre.toUpperCase() === activeName.toUpperCase())?.foto
 
   const totals = records.reduce(
     (acc, r) => ({
@@ -81,16 +81,7 @@ export function ProductividadPage() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div className="flex flex-col items-center rounded-2xl bg-white p-6 shadow-sm md:col-span-1">
                 <div className="mb-4 flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-brand/20 bg-slate-100">
-                  {photoUrl ? (
-                    <OptimizedImage
-                      src={photoUrl}
-                      alt={activeName}
-                      variant="photo"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <UserCircle className="h-24 w-24 text-brand/30" />
-                  )}
+                  <RecruiterPhoto nombre={activeName} externalUrl={fotoExcel} />
                 </div>
                 <h3 className="text-xl font-bold text-brand">{activeName}</h3>
               </div>

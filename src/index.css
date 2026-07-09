@@ -43,14 +43,12 @@ body {
   stroke: #e8eaf6;
 }
 
-.image-crisp {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+.image-screenshot {
+  image-rendering: auto;
 }
 
 .image-photo {
   image-rendering: auto;
-  image-rendering: high-quality;
 }
 
 .image-logo {

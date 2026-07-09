@@ -23,7 +23,7 @@ export function OptimizedImage({
       className={cn(
         'transition-opacity duration-200',
         loaded ? 'opacity-100' : 'opacity-0',
-        variant === 'screenshot' && 'image-crisp',
+        variant === 'screenshot' && 'image-screenshot',
         variant === 'photo' && 'image-photo',
         variant === 'logo' && 'image-logo',
         className,

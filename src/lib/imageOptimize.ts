@@ -1,5 +1,4 @@
-const MAX_DIMENSION = 4096
-const JPEG_QUALITY = 0.95
+const JPEG_QUALITY = 0.98
 
 function loadImageFromFile(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -27,18 +26,25 @@ function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality?: number)
   })
 }
 
-/** Procesa imagen conservando calidad: solo reduce si supera maxDimension. PNG se mantiene sin pérdida. */
+/** Capturas de pantalla: guarda el archivo original sin reescalar ni recomprimir */
+export async function processScreenshotForStorage(file: File): Promise<Blob> {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('El archivo no es una imagen')
+  }
+  return file
+}
+
+/** Fotos generales: solo reduce si supera 4096px */
 export async function processImageForStorage(file: File): Promise<Blob> {
   if (!file.type.startsWith('image/')) {
     throw new Error('El archivo no es una imagen')
   }
 
+  const MAX_DIMENSION = 4096
   const img = await loadImageFromFile(file)
   const scale = Math.min(1, MAX_DIMENSION / Math.max(img.naturalWidth, img.naturalHeight))
 
-  if (scale === 1) {
-    return file
-  }
+  if (scale === 1) return file
 
   const canvas = document.createElement('canvas')
   canvas.width = Math.round(img.naturalWidth * scale)
@@ -51,7 +57,7 @@ export async function processImageForStorage(file: File): Promise<Blob> {
   ctx.imageSmoothingQuality = 'high'
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
-  const isPng = file.type === 'image/png' || file.type === 'image/webp'
+  const isPng = file.type === 'image/png'
   const mime = isPng ? 'image/png' : 'image/jpeg'
   return canvasToBlob(canvas, mime, isPng ? undefined : JPEG_QUALITY)
 }
