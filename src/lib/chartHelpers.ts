@@ -35,7 +35,9 @@ export const MARGIN_H_RECRUITER = { top: 8, right: 52, left: 4, bottom: 8 }
 
 export const MARGIN_H_PVSI = { top: 12, right: 56, left: 12, bottom: 12 }
 
-export const MARGIN_V_RECRUITER = { top: 16, right: 24, left: 8, bottom: 8 }
+export const MARGIN_V_RECRUITER = { top: 28, right: 16, left: 4, bottom: 4 }
+
+export const MARGIN_V_LEADS = { top: 32, right: 12, left: 0, bottom: 0 }
 
 export const XAXIS_RECLUTADOR = {
   tick: TICK_RECLUTADOR,
@@ -45,6 +47,7 @@ export const XAXIS_RECLUTADOR = {
   interval: 0,
 }
 
-export function columnChartMinWidth(count: number, perColumn = 76): string {
-  return `${Math.max(count * perColumn, 320)}px`
+export function columnChartMinWidth(count: number, containerWidth = 0, perColumn = 68): number {
+  const byCount = Math.max(count, 1) * perColumn
+  return containerWidth > 0 ? Math.max(containerWidth, byCount) : byCount
 }

@@ -56,7 +56,7 @@ export function MensualPage() {
       <ChartCard title="CITADOS VS INGRESOS POR RECLUTADOR" className="min-h-0 flex-1">
         <ChartColorLegend items={LEGEND} />
         <div className="min-h-0 flex-1 overflow-x-auto">
-          <div className="h-full" style={{ minWidth: columnChartMinWidth(chartData.length) }}>
+          <div className="h-full" style={{ minWidth: columnChartMinWidth(chartData.length, 0, 68) }}>
             <ResponsiveContainer width="100%" height={chartHeight}>
               <BarChart
                 data={chartData}
