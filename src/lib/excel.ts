@@ -15,7 +15,9 @@ function str(v: unknown): string {
 export async function loadDashboardData(): Promise<DashboardData> {
   const url = `${assetUrl(EXCEL_FILE)}?t=${Date.now()}`
   const response = await fetch(url)
-  if (!response.ok) throw new Error('No se pudo cargar el archivo Excel')
+  if (!response.ok) {
+    throw new Error(`No se pudo cargar el Excel (${response.status}): ${url}`)
+  }
   const buffer = await response.arrayBuffer()
   const workbook = XLSX.read(buffer, { type: 'array' })
 
