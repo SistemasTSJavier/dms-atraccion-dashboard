@@ -3,23 +3,28 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
+import { ChartColorLegend, ChartTooltipContent } from '../components/ChartLegend'
 import { DateFilter } from '../components/DateFilter'
 import { ChartCard, PageHeader } from '../components/ui'
 import { useData } from '../context/DataContext'
 import { useChartHeight } from '../hooks/useChartHeight'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
-import { BAR_LABEL_TOP, CHART_MARGIN } from '../lib/chartConfig'
+import { BAR_LABEL_TOP, CHART_MARGIN, SERIES_COLORS } from '../lib/chartConfig'
+
+const LEGEND = [
+  { label: 'Asignado', color: SERIES_COLORS.asignado },
+  { label: 'Revisado', color: SERIES_COLORS.revisado },
+]
 
 export function LeadsPage() {
   const { data } = useData()
   const [dateFilter, setDateFilter] = useState(EMPTY_DATE_FILTER)
-  const chartHeight = useChartHeight(340)
+  const chartHeight = useChartHeight(380)
 
   const allDates = useMemo(() => data?.leads.map((l) => l.mes) ?? [], [data])
 
@@ -53,15 +58,15 @@ export function LeadsPage() {
         </div>
       ) : (
         <ChartCard title="SEGUIMIENTO DE LEADS">
+          <ChartColorLegend items={LEGEND} />
           <ResponsiveContainer width="100%" height={chartHeight}>
-            <BarChart data={chartData} margin={CHART_MARGIN}>
+            <BarChart data={chartData} margin={CHART_MARGIN} barCategoryGap="20%">
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="reclutador" tick={{ fill: '#09124f', fontSize: 10, fontWeight: 600 }} interval={0} angle={-20} textAnchor="end" height={60} />
               <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="asignado" name="Asignado" fill="#09124f" radius={[4, 4, 0, 0]} label={BAR_LABEL_TOP} />
-              <Bar dataKey="revisado" name="Revisado" fill="#3b5bdb" radius={[4, 4, 0, 0]} label={BAR_LABEL_TOP} />
+              <Tooltip content={<ChartTooltipContent />} />
+              <Bar dataKey="asignado" name="Asignado" fill={SERIES_COLORS.asignado} radius={[4, 4, 0, 0]} label={BAR_LABEL_TOP} />
+              <Bar dataKey="revisado" name="Revisado" fill={SERIES_COLORS.revisado} radius={[4, 4, 0, 0]} label={BAR_LABEL_TOP} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
