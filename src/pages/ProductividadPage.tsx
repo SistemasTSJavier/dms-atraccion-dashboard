@@ -6,6 +6,7 @@ import { RecruiterPhoto } from '../components/RecruiterPhoto'
 import { PageHeader, StatCard } from '../components/ui'
 import { useData } from '../context/DataContext'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
+import { formatReclutadorLabel } from '../lib/chartHelpers'
 import { cn } from '../lib/utils'
 
 export function ProductividadPage() {
@@ -55,23 +56,23 @@ export function ProductividadPage() {
           No hay datos para el periodo seleccionado
         </div>
       ) : (
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 rounded-2xl bg-white p-4 shadow-sm lg:col-span-3">
-            <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">Reclutador</p>
-            <div className="space-y-1 sm:grid sm:grid-cols-2 sm:gap-1 lg:grid-cols-1 lg:space-y-1">
+        <div className="grid grid-cols-12 gap-4 sm:gap-6">
+          <div className="col-span-12 rounded-2xl bg-white p-3 shadow-sm sm:p-4 lg:col-span-3">
+            <p className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">Reclutador</p>
+            <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
               {reclutadores.map((name) => (
                 <button
                   key={name}
                   type="button"
                   onClick={() => setSelected(name)}
                   className={cn(
-                    'w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-all',
+                    'shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition-all lg:w-full lg:text-left',
                     activeName === name
                       ? 'bg-brand text-white shadow-md'
-                      : 'text-brand hover:bg-brand/5',
+                      : 'bg-brand/5 text-brand hover:bg-brand/10',
                   )}
                 >
-                  {name}
+                  {formatReclutadorLabel(name)}
                 </button>
               ))}
             </div>
@@ -83,7 +84,7 @@ export function ProductividadPage() {
                 <div className="mb-4 flex h-40 w-40 items-center justify-center overflow-hidden rounded-full border-4 border-brand/20 bg-slate-100">
                   <RecruiterPhoto nombre={activeName} externalUrl={fotoExcel} />
                 </div>
-                <h3 className="text-xl font-bold text-brand">{activeName}</h3>
+                <h3 className="text-center text-xl font-bold text-brand">{formatReclutadorLabel(activeName)}</h3>
               </div>
 
               <motion.div

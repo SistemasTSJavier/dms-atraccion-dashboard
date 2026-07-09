@@ -12,9 +12,9 @@ import { ChartColorLegend, ChartTooltipContent } from '../components/ChartLegend
 import { DateFilter } from '../components/DateFilter'
 import { ChartCard, PageHeader } from '../components/ui'
 import { useData } from '../context/DataContext'
-import { useChartHeight } from '../hooks/useChartHeight'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
-import { BAR_LABEL_TOP, CHART_MARGIN, SERIES_COLORS } from '../lib/chartConfig'
+import { BAR_LABEL_RIGHT, SERIES_COLORS } from '../lib/chartConfig'
+import { formatReclutadorLabel, MARGIN_H_RECRUITER, TICK_RECLUTADOR, useRowChartHeight } from '../lib/chartHelpers'
 
 const LEGEND = [
   { label: 'Asignado', color: SERIES_COLORS.asignado },
@@ -24,7 +24,6 @@ const LEGEND = [
 export function LeadsPage() {
   const { data } = useData()
   const [dateFilter, setDateFilter] = useState(EMPTY_DATE_FILTER)
-  const chartHeight = useChartHeight(380)
 
   const allDates = useMemo(() => data?.leads.map((l) => l.mes) ?? [], [data])
 
@@ -42,8 +41,13 @@ export function LeadsPage() {
         revisado: prev.revisado + l.revisado,
       })
     }
-    return [...grouped.entries()].map(([reclutador, vals]) => ({ reclutador, ...vals }))
+    return [...grouped.entries()].map(([reclutador, vals]) => ({
+      reclutador: formatReclutadorLabel(reclutador),
+      ...vals,
+    }))
   }, [filtered])
+
+  const chartHeight = useRowChartHeight(chartData.length, 52, 340)
 
   if (!data) return null
 
@@ -57,16 +61,27 @@ export function LeadsPage() {
           No hay datos para el periodo seleccionado
         </div>
       ) : (
-        <ChartCard title="SEGUIMIENTO DE LEADS">
+        <ChartCard title="SEGUIMIENTO DE LEADS" className="min-h-0 flex-1">
           <ChartColorLegend items={LEGEND} />
           <ResponsiveContainer width="100%" height={chartHeight}>
-            <BarChart data={chartData} margin={CHART_MARGIN} barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="reclutador" tick={{ fill: '#09124f', fontSize: 10, fontWeight: 600 }} interval={0} angle={-20} textAnchor="end" height={60} />
-              <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={MARGIN_H_RECRUITER}
+              barCategoryGap="22%"
+              barGap={6}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
+              <YAxis
+                dataKey="reclutador"
+                type="category"
+                width={96}
+                tick={TICK_RECLUTADOR}
+              />
               <Tooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="asignado" name="Asignado" fill={SERIES_COLORS.asignado} radius={[4, 4, 0, 0]} label={BAR_LABEL_TOP} />
-              <Bar dataKey="revisado" name="Revisado" fill={SERIES_COLORS.revisado} radius={[4, 4, 0, 0]} label={BAR_LABEL_TOP} />
+              <Bar dataKey="asignado" name="Asignado" fill={SERIES_COLORS.asignado} radius={[0, 4, 4, 0]} label={BAR_LABEL_RIGHT} barSize={16} />
+              <Bar dataKey="revisado" name="Revisado" fill={SERIES_COLORS.revisado} radius={[0, 4, 4, 0]} label={BAR_LABEL_RIGHT} barSize={16} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>

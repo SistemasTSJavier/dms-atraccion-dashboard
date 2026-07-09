@@ -29,7 +29,11 @@ export function InicioPage() {
           <Sparkles className="h-5 w-5" />
         </div>
         <h1 className="mt-4 text-5xl font-extrabold tracking-tight text-white md:text-6xl">
-          DMS ATRACCIÓN
+          <span className="block">DMS</span>
+          <span className="mt-1 block text-sm font-medium tracking-widest text-white/60 uppercase md:text-base">
+            Daily Management System
+          </span>
+          <span className="mt-2 block">ATRACCIÓN</span>
         </h1>
         <p className="mx-auto mt-4 max-w-md text-lg text-white/70">
           Talento · Reclutamiento · Productividad
