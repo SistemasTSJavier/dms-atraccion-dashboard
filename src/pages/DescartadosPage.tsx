@@ -12,6 +12,7 @@ import {
 import { DateFilter } from '../components/DateFilter'
 import { ChartCard, PageHeader } from '../components/ui'
 import { useData } from '../context/DataContext'
+import { useChartHeight } from '../hooks/useChartHeight'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
 import { BAR_LABEL_RIGHT, CHART_MARGIN_VERTICAL } from '../lib/chartConfig'
 
@@ -20,11 +21,9 @@ const BAR_COLORS = ['#09124f', '#1a2d7a', '#2d4a9e', '#3b5bdb', '#5c7cfa', '#748
 export function DescartadosPage() {
   const { data } = useData()
   const [dateFilter, setDateFilter] = useState(EMPTY_DATE_FILTER)
+  const chartHeight = useChartHeight(340)
 
-  const allDates = useMemo(
-    () => data?.descartados.map((d) => d.fecha) ?? [],
-    [data],
-  )
+  const allDates = useMemo(() => data?.descartados.map((d) => d.fecha) ?? [], [data])
 
   const filtered = useMemo(() => {
     if (!data) return []
@@ -42,25 +41,22 @@ export function DescartadosPage() {
   if (!data) return null
 
   return (
-    <div>
+    <div className="flex h-full min-h-0 flex-col">
       <PageHeader title="Descartados" subtitle={formatFilterLabel(dateFilter)} />
-
-      <DateFilter dates={allDates} value={dateFilter} onChange={setDateFilter} className="mb-6" />
+      <DateFilter dates={allDates} value={dateFilter} onChange={setDateFilter} className="mb-3 shrink-0 sm:mb-4" />
 
       {chartData.length === 0 ? (
-        <div className="rounded-2xl bg-white p-12 text-center text-slate-400 shadow-sm">
+        <div className="flex flex-1 items-center justify-center rounded-2xl bg-white p-8 text-center text-slate-400 shadow-sm">
           No hay datos para el periodo seleccionado
         </div>
       ) : (
         <ChartCard title="DESCARTADOS">
-          <ResponsiveContainer width="100%" height={480}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <BarChart data={chartData} layout="vertical" margin={CHART_MARGIN_VERTICAL}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-              <XAxis type="number" tick={{ fill: '#64748b' }} />
-              <YAxis dataKey="tipo" type="category" width={180} tick={{ fill: '#09124f', fontSize: 11, fontWeight: 600 }} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
-              />
+              <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
+              <YAxis dataKey="tipo" type="category" width={120} tick={{ fill: '#09124f', fontSize: 10, fontWeight: 600 }} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
               <Bar dataKey="candidatos" radius={[0, 8, 8, 0]} label={BAR_LABEL_RIGHT}>
                 {chartData.map((_, i) => (
                   <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />

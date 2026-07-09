@@ -42,13 +42,13 @@ export function ProductividadPage() {
   )
 
   return (
-    <div>
+    <div className="flex h-full min-h-0 flex-col">
       <PageHeader
         title="Productividad por Reclutador"
         subtitle={formatFilterLabel(dateFilter)}
       />
 
-      <DateFilter dates={allDates} value={dateFilter} onChange={setDateFilter} className="mb-6" />
+      <DateFilter dates={allDates} value={dateFilter} onChange={setDateFilter} className="mb-3 shrink-0 sm:mb-4" />
 
       {filtered.length === 0 ? (
         <div className="rounded-2xl bg-white p-12 text-center text-slate-400 shadow-sm">
@@ -58,7 +58,7 @@ export function ProductividadPage() {
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 rounded-2xl bg-white p-4 shadow-sm lg:col-span-3">
             <p className="mb-3 text-xs font-semibold tracking-wide text-slate-500 uppercase">Reclutador</p>
-            <div className="space-y-1">
+            <div className="space-y-1 sm:grid sm:grid-cols-2 sm:gap-1 lg:grid-cols-1 lg:space-y-1">
               {reclutadores.map((name) => (
                 <button
                   key={name}

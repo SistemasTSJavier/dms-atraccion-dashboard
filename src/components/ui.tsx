@@ -10,6 +10,7 @@ import {
   TrafficCone,
   UserX,
   Users,
+  X,
   type LucideIcon,
 } from 'lucide-react'
 import { NAV_ITEMS } from '../data/constants'
@@ -34,16 +35,24 @@ const iconMap: Record<string, LucideIcon> = {
 interface SidebarProps {
   active: PageId
   onNavigate: (page: PageId) => void
+  onClose?: () => void
 }
 
-export function Sidebar({ active, onNavigate }: SidebarProps) {
+export function Sidebar({ active, onNavigate, onClose }: SidebarProps) {
   return (
-    <aside className="flex w-64 shrink-0 flex-col bg-brand text-white shadow-2xl">
-      <div className="border-b border-white/10 px-5 py-6">
-        <OptimizedImage src={assetUrl('logo.png')} alt="Logo" variant="logo" className="mx-auto h-14 object-contain" />
-        <p className="mt-3 text-center text-xs font-semibold tracking-widest text-white/70 uppercase">
-          DMS Atracción
-        </p>
+    <aside className="flex h-full w-64 shrink-0 flex-col bg-brand text-white shadow-2xl">
+      <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
+        <div className="flex-1">
+          <OptimizedImage src={assetUrl('logo.png')} alt="Logo" variant="logo" className="mx-auto h-12 object-contain sm:h-14" />
+          <p className="mt-2 text-center text-[10px] font-semibold tracking-widest text-white/70 uppercase sm:text-xs">
+            DMS Atracción
+          </p>
+        </div>
+        {onClose && (
+          <button type="button" onClick={onClose} className="ml-2 rounded-lg p-1 hover:bg-white/10 lg:hidden" aria-label="Cerrar menú">
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
@@ -84,16 +93,16 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, children }: PageHeaderProps) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
+    <div className="mb-3 flex shrink-0 flex-wrap items-end justify-between gap-3 sm:mb-4 md:mb-6">
+      <div className="min-w-0">
         <motion.h1
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-bold text-brand"
+          className="text-lg font-bold text-brand sm:text-xl md:text-2xl"
         >
           {title}
         </motion.h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 truncate text-xs text-slate-500 sm:text-sm">{subtitle}</p>}
       </div>
       {children}
     </div>
@@ -118,7 +127,7 @@ export function StatCard({ label, value, icon: Icon, accent = 'border-brand' }: 
         <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">{label}</p>
         {Icon && <Icon className="h-5 w-5 text-brand/40" />}
       </div>
-      <p className="mt-2 text-3xl font-bold text-brand">{value}</p>
+      <p className="mt-1 text-2xl font-bold text-brand sm:mt-2 sm:text-3xl">{value}</p>
     </motion.div>
   )
 }
@@ -131,9 +140,9 @@ interface ChartCardProps {
 
 export function ChartCard({ title, children, className }: ChartCardProps) {
   return (
-    <div className={cn('rounded-2xl bg-white p-6 shadow-sm', className)}>
-      <h3 className="mb-4 text-center text-lg font-bold text-brand">{title}</h3>
-      {children}
+    <div className={cn('flex min-h-0 flex-1 flex-col rounded-2xl bg-white p-3 shadow-sm sm:p-4 md:p-6', className)}>
+      <h3 className="mb-2 shrink-0 text-center text-sm font-bold text-brand sm:mb-3 sm:text-base md:text-lg">{title}</h3>
+      <div className="min-h-0 flex-1">{children}</div>
     </div>
   )
 }
