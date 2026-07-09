@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   Bar,
   BarChart,
@@ -10,8 +11,14 @@ import {
 import { ChartColorLegend, ChartTooltipContent } from '../components/ChartLegend'
 import { ChartCard, PageHeader } from '../components/ui'
 import { useData } from '../context/DataContext'
-import { useRowChartHeight, formatReclutadorLabel, MARGIN_H_RECRUITER, TICK_RECLUTADOR } from '../lib/chartHelpers'
-import { BAR_LABEL_RIGHT, SERIES_COLORS } from '../lib/chartConfig'
+import { useChartHeight } from '../hooks/useChartHeight'
+import { BAR_LABEL_TOP, SERIES_COLORS } from '../lib/chartConfig'
+import {
+  columnChartMinWidth,
+  formatReclutadorLabel,
+  MARGIN_V_RECRUITER,
+  XAXIS_RECLUTADOR,
+} from '../lib/chartHelpers'
 
 const LEGEND = [
   { label: 'Citados', color: SERIES_COLORS.citados },
@@ -21,45 +28,53 @@ const LEGEND = [
 
 export function MensualPage() {
   const { data } = useData()
+  const chartHeight = useChartHeight(260)
+
+  const chartData = useMemo(() => {
+    if (!data) return []
+    const grouped = new Map<string, { citados: number; procesos: number; ingresos: number }>()
+    for (const r of data.reclutadores) {
+      const key = r.reclutador.toUpperCase()
+      const prev = grouped.get(key) ?? { citados: 0, procesos: 0, ingresos: 0 }
+      grouped.set(key, {
+        citados: prev.citados + r.citados,
+        procesos: prev.procesos + r.procesos,
+        ingresos: prev.ingresos + r.ingresos,
+      })
+    }
+    return [...grouped.entries()].map(([reclutador, vals]) => ({
+      reclutador: formatReclutadorLabel(reclutador),
+      ...vals,
+    }))
+  }, [data])
 
   if (!data) return null
-
-  const chartData = data.reclutadores.map((r) => ({
-    reclutador: formatReclutadorLabel(r.reclutador),
-    citados: r.citados,
-    procesos: r.procesos,
-    ingresos: r.ingresos,
-  }))
-
-  const chartHeight = useRowChartHeight(chartData.length, 58, 260)
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <PageHeader title="Mensual Reclutador" subtitle="Citados vs Ingresos por reclutador" />
       <ChartCard title="CITADOS VS INGRESOS POR RECLUTADOR" className="min-h-0 flex-1">
         <ChartColorLegend items={LEGEND} />
-        <ResponsiveContainer width="100%" height={chartHeight}>
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={MARGIN_H_RECRUITER}
-            barCategoryGap="20%"
-            barGap={4}
-          >
-            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-            <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
-            <YAxis
-              dataKey="reclutador"
-              type="category"
-              width={96}
-              tick={TICK_RECLUTADOR}
-            />
-            <Tooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="citados" name="Citados" fill={SERIES_COLORS.citados} radius={[0, 4, 4, 0]} label={BAR_LABEL_RIGHT} barSize={12} />
-            <Bar dataKey="procesos" name="Procesos" fill={SERIES_COLORS.procesos} radius={[0, 4, 4, 0]} label={BAR_LABEL_RIGHT} barSize={12} />
-            <Bar dataKey="ingresos" name="Ingresos" fill={SERIES_COLORS.ingresos} radius={[0, 4, 4, 0]} label={BAR_LABEL_RIGHT} barSize={12} />
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="min-h-0 flex-1 overflow-x-auto">
+          <div className="h-full" style={{ minWidth: columnChartMinWidth(chartData.length) }}>
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <BarChart
+                data={chartData}
+                margin={MARGIN_V_RECRUITER}
+                barCategoryGap="16%"
+                barGap={4}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="reclutador" {...XAXIS_RECLUTADOR} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} allowDecimals={false} />
+                <Tooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="citados" name="Citados" fill={SERIES_COLORS.citados} radius={[6, 6, 0, 0]} label={BAR_LABEL_TOP} maxBarSize={40} />
+                <Bar dataKey="procesos" name="Procesos" fill={SERIES_COLORS.procesos} radius={[6, 6, 0, 0]} label={BAR_LABEL_TOP} maxBarSize={40} />
+                <Bar dataKey="ingresos" name="Ingresos" fill={SERIES_COLORS.ingresos} radius={[6, 6, 0, 0]} label={BAR_LABEL_TOP} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </ChartCard>
     </div>
   )

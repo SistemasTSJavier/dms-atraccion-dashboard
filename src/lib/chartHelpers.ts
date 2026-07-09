@@ -34,3 +34,17 @@ export const TICK_RECLUTADOR = {
 export const MARGIN_H_RECRUITER = { top: 8, right: 52, left: 4, bottom: 8 }
 
 export const MARGIN_H_PVSI = { top: 12, right: 56, left: 12, bottom: 12 }
+
+export const MARGIN_V_RECRUITER = { top: 16, right: 24, left: 8, bottom: 8 }
+
+export const XAXIS_RECLUTADOR = {
+  tick: TICK_RECLUTADOR,
+  angle: -35,
+  textAnchor: 'end' as const,
+  height: 72,
+  interval: 0,
+}
+
+export function columnChartMinWidth(count: number, perColumn = 76): string {
+  return `${Math.max(count * perColumn, 320)}px`
+}
