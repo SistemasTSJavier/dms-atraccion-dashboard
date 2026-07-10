@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { NAV_ITEMS } from '../data/constants'
 import type { PageId } from '../types'
+import { useData } from '../context/DataContext'
 import { assetUrl } from '../lib/assets'
 import { cn } from '../lib/utils'
 import { OptimizedImage } from './OptimizedImage'
@@ -39,11 +40,19 @@ interface SidebarProps {
 }
 
 export function Sidebar({ active, onNavigate, onClose }: SidebarProps) {
+  const { assetVersion } = useData()
+
   return (
     <aside className="flex h-full w-64 shrink-0 flex-col bg-brand text-white shadow-2xl">
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
         <div className="flex-1">
-          <OptimizedImage src={assetUrl('logo.png')} alt="Logo" variant="logo" className="mx-auto h-12 object-contain sm:h-14" />
+          <OptimizedImage
+            key={assetVersion}
+            src={assetUrl('logo.png', assetVersion)}
+            alt="Logo"
+            variant="logo"
+            className="mx-auto h-12 object-contain sm:h-14"
+          />
           <p className="mt-2 text-center text-[10px] font-semibold tracking-widest text-white/70 uppercase sm:text-xs">
             DMS Atracción
           </p>

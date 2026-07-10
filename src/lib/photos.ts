@@ -11,12 +11,20 @@ function nombreToSlug(nombre: string): string {
 }
 
 /** Rutas locales a probar: photos/andrea.jpeg, photos/andrea.jpg, etc. */
-export function getPhotoCandidates(nombre: string, externalUrl?: string): string[] {
+export function getPhotoCandidates(
+  nombre: string,
+  externalUrl?: string,
+  cacheBust?: string | number,
+): string[] {
   const slug = nombreToSlug(nombre)
-  const local = EXTENSIONS.map((ext) => assetUrl(`photos/${slug}.${ext}`))
+  const local = EXTENSIONS.map((ext) => assetUrl(`photos/${slug}.${ext}`, cacheBust))
 
   if (externalUrl?.startsWith('http') && !externalUrl.includes('drive.google.com')) {
-    return [externalUrl, ...local]
+    const busted =
+      cacheBust !== undefined
+        ? `${externalUrl}${externalUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(String(cacheBust))}`
+        : externalUrl
+    return [busted, ...local]
   }
 
   return local

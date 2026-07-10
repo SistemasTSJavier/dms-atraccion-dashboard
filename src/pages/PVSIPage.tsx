@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import {
   Bar,
   BarChart,
@@ -9,9 +10,11 @@ import {
   YAxis,
 } from 'recharts'
 import { ChartColorLegend, ChartTooltipContent } from '../components/ChartLegend'
+import { DateFilter } from '../components/DateFilter'
 import { ChartCard, PageHeader, StatCard } from '../components/ui'
 import { useData } from '../context/DataContext'
 import { BAR_LABEL_RIGHT, SERIES_COLORS } from '../lib/chartConfig'
+import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
 import { MARGIN_H_PVSI } from '../lib/chartHelpers'
 
 const LEGEND = [
@@ -21,11 +24,19 @@ const LEGEND = [
 
 export function PVSIPage() {
   const { data } = useData()
+  const [dateFilter, setDateFilter] = useState(EMPTY_DATE_FILTER)
+
+  const allDates = useMemo(() => data?.reclutadores.map((r) => r.fecha) ?? [], [data])
+
+  const filtered = useMemo(() => {
+    if (!data) return []
+    return data.reclutadores.filter((r) => matchesDateFilter(r.fecha, dateFilter))
+  }, [data, dateFilter])
 
   if (!data) return null
 
-  const totalIngresos = data.reclutadores.reduce((s, r) => s + r.ingresos, 0)
-  const totalProcesos = data.reclutadores.reduce((s, r) => s + r.procesos, 0)
+  const totalIngresos = filtered.reduce((s, r) => s + r.ingresos, 0)
+  const totalProcesos = filtered.reduce((s, r) => s + r.procesos, 0)
 
   const chartData = [
     { metric: 'Ingresos', value: totalIngresos, fill: SERIES_COLORS.ingresos },
@@ -34,7 +45,15 @@ export function PVSIPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageHeader title="PVSI" subtitle="Ingresos vs Procesos" />
+      <PageHeader title="PVSI" subtitle={formatFilterLabel(dateFilter)} />
+
+      <DateFilter
+        dates={allDates}
+        value={dateFilter}
+        onChange={setDateFilter}
+        fields={['year', 'month']}
+        className="mb-3 shrink-0 sm:mb-4"
+      />
 
       <div className="mb-3 grid shrink-0 grid-cols-2 gap-3 sm:mb-4 sm:gap-4">
         <StatCard label="Ingresos" value={totalIngresos} accent="border-brand" />

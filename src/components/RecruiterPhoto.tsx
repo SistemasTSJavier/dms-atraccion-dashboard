@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { UserCircle } from 'lucide-react'
-import { OptimizedImage } from './OptimizedImage'
+import { useData } from '../context/DataContext'
 import { getPhotoCandidates } from '../lib/photos'
+import { OptimizedImage } from './OptimizedImage'
 
 interface RecruiterPhotoProps {
   nombre: string
@@ -10,12 +11,13 @@ interface RecruiterPhotoProps {
 }
 
 export function RecruiterPhoto({ nombre, externalUrl, className }: RecruiterPhotoProps) {
-  const candidates = getPhotoCandidates(nombre, externalUrl)
+  const { assetVersion } = useData()
+  const candidates = getPhotoCandidates(nombre, externalUrl, assetVersion)
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
     setIndex(0)
-  }, [nombre, externalUrl])
+  }, [nombre, externalUrl, assetVersion])
 
   const src = candidates[index]
 
@@ -25,6 +27,7 @@ export function RecruiterPhoto({ nombre, externalUrl, className }: RecruiterPhot
 
   return (
     <OptimizedImage
+      key={`${src}-${assetVersion}`}
       src={src}
       alt={nombre}
       variant="photo"

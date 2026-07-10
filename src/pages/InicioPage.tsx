@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
 import { OptimizedImage } from '../components/OptimizedImage'
+import { useData } from '../context/DataContext'
 import { assetUrl } from '../lib/assets'
 
 export function InicioPage() {
+  const { assetVersion } = useData()
+
   return (
     <div className="relative flex h-full items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-brand via-brand-light to-brand-accent">
       <div className="absolute inset-0 opacity-10">
@@ -18,7 +21,8 @@ export function InicioPage() {
         className="relative z-10 text-center"
       >
         <OptimizedImage
-          src={assetUrl('logo.png')}
+          key={assetVersion}
+          src={assetUrl('logo.png', assetVersion)}
           alt="Logo DMS"
           variant="logo"
           className="mx-auto mb-8 h-32 object-contain drop-shadow-2xl"

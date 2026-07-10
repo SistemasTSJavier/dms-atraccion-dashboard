@@ -8,6 +8,8 @@ interface DataContextValue {
   error: string | null
   sourceFile: string
   isImported: boolean
+  /** Cambia al refrescar/importar para forzar recarga de fotos e imágenes */
+  assetVersion: number
   refresh: () => Promise<void>
   importExcel: (file: File) => Promise<void>
   useServerFile: () => Promise<void>
@@ -21,12 +23,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const [sourceFile, setSourceFile] = useState('productividad-atraccion.xlsx')
   const [isImported, setIsImported] = useState(false)
+  const [assetVersion, setAssetVersion] = useState(() => Date.now())
 
   const applyResult = (result: { data: DashboardData; source: string }, imported: boolean) => {
     setData(result.data)
     setSourceFile(result.source)
     setIsImported(imported)
     setError(null)
+    setAssetVersion(Date.now())
   }
 
   const refresh = useCallback(async () => {
@@ -73,7 +77,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [refresh])
 
   return (
-    <DataContext.Provider value={{ data, loading, error, sourceFile, isImported, refresh, importExcel, useServerFile }}>
+    <DataContext.Provider value={{ data, loading, error, sourceFile, isImported, assetVersion, refresh, importExcel, useServerFile }}>
       {children}
     </DataContext.Provider>
   )

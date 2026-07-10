@@ -1,19 +1,21 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Expand, ImagePlus, Shrink, Trash2, Upload } from 'lucide-react'
 import { useStoredImage } from '../components/OptimizedImage'
 import { PageHeader } from '../components/ui'
+import { useData } from '../context/DataContext'
 import { assetUrl } from '../lib/assets'
 import { processScreenshotForStorage } from '../lib/imageOptimize'
 import { deleteImage, saveImage } from '../lib/imageStorage'
 import { cn } from '../lib/utils'
 
 const STORAGE_KEY = 'semaforo-capture'
-const DEFAULT_IMAGE = assetUrl('semaforo-default.png')
 
 type FitMode = 'width' | 'actual'
 
 export function SemaforoPage() {
-  const { src, isCustom, loading, setSrc, setIsCustom } = useStoredImage(STORAGE_KEY, DEFAULT_IMAGE)
+  const { assetVersion } = useData()
+  const defaultImage = useMemo(() => assetUrl('semaforo-default.png', assetVersion), [assetVersion])
+  const { src, isCustom, loading, setSrc, setIsCustom } = useStoredImage(STORAGE_KEY, defaultImage)
   const [fitMode, setFitMode] = useState<FitMode>('width')
   const [zoom, setZoom] = useState(100)
   const [naturalSize, setNaturalSize] = useState({ w: 0, h: 0 })
@@ -54,7 +56,7 @@ export function SemaforoPage() {
       URL.revokeObjectURL(objectUrlRef.current)
       objectUrlRef.current = null
     }
-    setSrc(DEFAULT_IMAGE)
+    setSrc(defaultImage)
     setIsCustom(false)
     setFitMode('width')
     setZoom(100)
@@ -186,7 +188,7 @@ export function SemaforoPage() {
               src={src}
               alt="Reporte semáforo de posiciones"
               onLoad={onImageLoad}
-              onError={() => setSrc(DEFAULT_IMAGE)}
+              onError={() => setSrc(defaultImage)}
               className={cn(
                 'rounded-lg shadow-md',
                 fitMode === 'width' ? 'h-auto w-full max-w-full' : 'h-auto max-w-none',

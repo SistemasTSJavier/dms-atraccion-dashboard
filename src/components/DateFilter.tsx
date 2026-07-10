@@ -10,11 +10,15 @@ import {
 } from '../lib/dateFilters'
 import { cn } from '../lib/utils'
 
+type DateFilterField = 'year' | 'month' | 'week' | 'day'
+
 interface DateFilterProps {
   dates: Date[]
   value: DateFilterState
   onChange: (filter: DateFilterState) => void
   className?: string
+  /** Campos visibles. Por defecto: año, mes, semana y día. */
+  fields?: DateFilterField[]
 }
 
 function SelectField({
@@ -52,13 +56,24 @@ function SelectField({
   )
 }
 
-export function DateFilter({ dates, value, onChange, className }: DateFilterProps) {
+export function DateFilter({
+  dates,
+  value,
+  onChange,
+  className,
+  fields = ['year', 'month', 'week', 'day'],
+}: DateFilterProps) {
   const years = extractYears(dates)
   const months = extractMonths(dates, value.year)
   const weeks = extractWeeks(dates, value.year, value.month)
   const days = extractDays(dates, value.year, value.month, value.week)
+  const show = (field: DateFilterField) => fields.includes(field)
 
-  const hasActive = value.year !== null || value.month !== null || value.week !== null || value.day !== null
+  const hasActive =
+    (show('year') && value.year !== null) ||
+    (show('month') && value.month !== null) ||
+    (show('week') && value.week !== null) ||
+    (show('day') && value.day !== null)
 
   const update = (patch: Partial<DateFilterState>) => {
     const next = { ...value, ...patch }
@@ -76,6 +91,9 @@ export function DateFilter({ dates, value, onChange, className }: DateFilterProp
     }
     onChange(next)
   }
+
+  const cols =
+    fields.length <= 2 ? 'grid-cols-2' : fields.length === 3 ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2 sm:grid-cols-4'
 
   return (
     <div className={cn('rounded-2xl border border-slate-200 bg-white p-4 shadow-sm', className)}>
@@ -95,34 +113,42 @@ export function DateFilter({ dates, value, onChange, className }: DateFilterProp
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <SelectField
-          label="Año"
-          value={value.year}
-          options={years.map((y) => ({ value: y, label: String(y) }))}
-          onChange={(y) => update({ year: y })}
-        />
-        <SelectField
-          label="Mes"
-          value={value.month}
-          options={months.map((m) => ({ value: m, label: monthLabel(m) }))}
-          onChange={(m) => update({ month: m })}
-          disabled={months.length === 0}
-        />
-        <SelectField
-          label="Semana"
-          value={value.week}
-          options={weeks.map((w) => ({ value: w, label: `Semana ${w}` }))}
-          onChange={(w) => update({ week: w })}
-          disabled={weeks.length === 0}
-        />
-        <SelectField
-          label="Día"
-          value={value.day}
-          options={days.map((d) => ({ value: d, label: String(d) }))}
-          onChange={(d) => update({ day: d })}
-          disabled={days.length === 0}
-        />
+      <div className={cn('grid gap-3', cols)}>
+        {show('year') && (
+          <SelectField
+            label="Año"
+            value={value.year}
+            options={years.map((y) => ({ value: y, label: String(y) }))}
+            onChange={(y) => update({ year: y })}
+          />
+        )}
+        {show('month') && (
+          <SelectField
+            label="Mes"
+            value={value.month}
+            options={months.map((m) => ({ value: m, label: monthLabel(m) }))}
+            onChange={(m) => update({ month: m })}
+            disabled={months.length === 0}
+          />
+        )}
+        {show('week') && (
+          <SelectField
+            label="Semana"
+            value={value.week}
+            options={weeks.map((w) => ({ value: w, label: `Semana ${w}` }))}
+            onChange={(w) => update({ week: w })}
+            disabled={weeks.length === 0}
+          />
+        )}
+        {show('day') && (
+          <SelectField
+            label="Día"
+            value={value.day}
+            options={days.map((d) => ({ value: d, label: String(d) }))}
+            onChange={(d) => update({ day: d })}
+            disabled={days.length === 0}
+          />
+        )}
       </div>
     </div>
   )
