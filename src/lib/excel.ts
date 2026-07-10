@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx'
 import type { DashboardData, Descartado, Foto, Lead, Perfil, Reclutador } from '../types'
 import { EXCEL_FILE, assetUrl } from './assets'
 import { clearExcelFile, loadExcelFile, saveExcelFile } from './excelStorage'
+import { parseFechaIngreso, resolveTiempoConTactical } from './tiempoTactical'
 import { excelDateToJS } from './utils'
 
 function num(v: unknown): number {
@@ -13,8 +14,24 @@ function str(v: unknown): string {
   return String(v ?? '').trim()
 }
 
+function parseExcelDate(value: unknown): Date {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value
+  if (typeof value === 'number' && Number.isFinite(value)) return excelDateToJS(value)
+  const fromText = parseFechaIngreso(value)
+  return fromText ?? new Date(NaN)
+}
+
+function perfilFechaValue(row: Record<string, unknown>): unknown {
+  return (
+    row['FECHA INGRESO'] ??
+    row['FECHA DE INGRESO'] ??
+    row['INGRESO'] ??
+    row['TIEMPO CON TACTICAL']
+  )
+}
+
 export function parseWorkbook(buffer: ArrayBuffer): DashboardData {
-  const workbook = XLSX.read(buffer, { type: 'array' })
+  const workbook = XLSX.read(buffer, { type: 'array', cellDates: true })
 
   const sheet = (name: string) => {
     if (!workbook.Sheets[name]) {
@@ -30,7 +47,7 @@ export function parseWorkbook(buffer: ArrayBuffer): DashboardData {
       ingresos: num(row.INGRESOS),
       procesos: num(row.PROCESOS),
       citados: num(row.CITADOS),
-      fecha: excelDateToJS(num(row.FECHA)),
+      fecha: parseExcelDate(row.FECHA),
     }))
 
   const leads: Lead[] = XLSX.utils
@@ -39,7 +56,7 @@ export function parseWorkbook(buffer: ArrayBuffer): DashboardData {
       reclutador: str(row.RECLUTADOR),
       asignado: num(row.ASIGNADO),
       revisado: num(row.REVISADO),
-      mes: excelDateToJS(num(row.MES)),
+      mes: parseExcelDate(row.MES),
     }))
 
   const descartados: Descartado[] = XLSX.utils
@@ -47,15 +64,20 @@ export function parseWorkbook(buffer: ArrayBuffer): DashboardData {
     .map((row) => ({
       candidatos: num(row.CANDIDATOS),
       tipo: str(row.TIPO),
-      fecha: excelDateToJS(num(row.FECHA)),
+      fecha: parseExcelDate(row.FECHA),
     }))
 
   const perfiles: Perfil[] = XLSX.utils
     .sheet_to_json<Record<string, unknown>>(sheet('PERFIL'))
-    .map((row) => ({
-      nombre: str(row.NOMBRE),
-      tiempoConTactical: str(row['TIEMPO CON TACTICAL']),
-    }))
+    .map((row) => {
+      const raw = perfilFechaValue(row)
+      const fechaIngreso = parseFechaIngreso(raw) ?? undefined
+      return {
+        nombre: str(row.NOMBRE),
+        tiempoConTactical: resolveTiempoConTactical(raw),
+        fechaIngreso,
+      }
+    })
 
   const fotos: Foto[] = XLSX.utils
     .sheet_to_json<Record<string, unknown>>(sheet('FOTO'))

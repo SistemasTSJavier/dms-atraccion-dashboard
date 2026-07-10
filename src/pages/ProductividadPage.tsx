@@ -7,6 +7,7 @@ import { PageHeader, StatCard } from '../components/ui'
 import { useData } from '../context/DataContext'
 import { EMPTY_DATE_FILTER, formatFilterLabel, matchesDateFilter } from '../lib/dateFilters'
 import { formatReclutadorLabel } from '../lib/chartHelpers'
+import { resolveTiempoConTactical } from '../lib/tiempoTactical'
 import { cn } from '../lib/utils'
 
 export function ProductividadPage() {
@@ -30,8 +31,13 @@ export function ProductividadPage() {
   const activeName = reclutadores.includes(selected) ? selected : reclutadores[0] ?? selected
   const records = filtered.filter((r) => r.reclutador === activeName)
   const current = records[0]
-  const perfil = data.perfiles.find((p) => p.nombre === activeName)
+  const perfil = data.perfiles.find(
+    (p) => p.nombre.toUpperCase() === activeName.toUpperCase(),
+  )
   const fotoExcel = data.fotos.find((f) => f.nombre.toUpperCase() === activeName.toUpperCase())?.foto
+  const tiempoTactical = perfil?.fechaIngreso
+    ? resolveTiempoConTactical(perfil.fechaIngreso)
+    : (perfil?.tiempoConTactical ?? '—')
 
   const totals = records.reduce(
     (acc, r) => ({
@@ -98,7 +104,7 @@ export function ProductividadPage() {
                   <span className="text-sm font-semibold tracking-wide uppercase">Tiempo en Tactical Support</span>
                 </div>
                 <p className="mt-3 text-3xl font-bold text-brand">
-                  {perfil?.tiempoConTactical ?? '—'}
+                  {tiempoTactical}
                 </p>
               </motion.div>
             </div>

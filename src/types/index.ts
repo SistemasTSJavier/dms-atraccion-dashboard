@@ -21,7 +21,10 @@ export interface Descartado {
 
 export interface Perfil {
   nombre: string
+  /** Texto listo para mostrar (calculado desde fecha de ingreso o legacy) */
   tiempoConTactical: string
+  /** Fecha de ingreso si el Excel trae fecha en lugar de texto */
+  fechaIngreso?: Date
 }
 
 export interface Foto {
