@@ -2,6 +2,12 @@ import { assetUrl } from './assets'
 
 const EXTENSIONS = ['jpeg', 'jpg', 'png', 'webp'] as const
 
+/** Alias de archivo cuando el nombre en Excel no coincide 1:1 con el archivo */
+const PHOTO_ALIASES: Record<string, string[]> = {
+  beatriz: ['beatriz'],
+  'beatriz majata': ['beatriz', 'beatriz-majata', 'beatriz_majata'],
+}
+
 function nombreToSlug(nombre: string): string {
   return nombre
     .toLowerCase()
@@ -10,14 +16,22 @@ function nombreToSlug(nombre: string): string {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
-/** Rutas locales a probar: photos/andrea.jpeg, photos/andrea.jpg, etc. */
+function photoSlugs(nombre: string): string[] {
+  const full = nombreToSlug(nombre)
+  const first = full.split(/\s+/)[0] ?? full
+  const aliases = PHOTO_ALIASES[full] ?? []
+  return [...new Set([full, first, ...aliases].filter(Boolean))]
+}
+
+/** Rutas locales a probar: photos/andrea.jpeg, photos/beatriz.jpeg, etc. */
 export function getPhotoCandidates(
   nombre: string,
   externalUrl?: string,
   cacheBust?: string | number,
 ): string[] {
-  const slug = nombreToSlug(nombre)
-  const local = EXTENSIONS.map((ext) => assetUrl(`photos/${slug}.${ext}`, cacheBust))
+  const local = photoSlugs(nombre).flatMap((slug) =>
+    EXTENSIONS.map((ext) => assetUrl(`photos/${slug}.${ext}`, cacheBust)),
+  )
 
   if (externalUrl?.startsWith('http') && !externalUrl.includes('drive.google.com')) {
     const busted =

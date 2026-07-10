@@ -20,9 +20,20 @@ export function useRowChartHeight(rowCount: number, rowHeight = 52, offset = 300
   return height
 }
 
+const DISPLAY_NAMES: Record<string, string> = {
+  BEATRIZ: 'Beatriz Majata',
+  'BEATRIZ MAJATA': 'Beatriz Majata',
+}
+
 export function formatReclutadorLabel(name: string): string {
   if (!name) return name
-  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+  const key = name.trim().toUpperCase()
+  if (DISPLAY_NAMES[key]) return DISPLAY_NAMES[key]
+  return name
+    .trim()
+    .split(/\s+/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ')
 }
 
 export const TICK_RECLUTADOR = {
